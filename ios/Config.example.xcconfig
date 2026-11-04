@@ -1,0 +1,3 @@
+// Copy to Config.xcconfig (gitignored) and fill in your own values.
+DEVELOPMENT_TEAM = YOURTEAMID
+AB_BUNDLE_ID = com.example.authbridge

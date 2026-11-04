@@ -1,0 +1,7 @@
+{
+  "name": "com.authbridge.host",
+  "description": "AuthBridge native messaging host",
+  "path": "__NMH_PATH__",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://dkajlimbibjhfcjjppjoidaiajckmbao/"]
+}

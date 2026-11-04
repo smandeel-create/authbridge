@@ -1,0 +1,10 @@
+node_modules/
+se/bin/
+ios/build/
+ios/build-tailscale/
+.DS_Store
+ios/*.xcodeproj/xcuserdata/
+*.p8
+*.pem
+host/nmh-launch.sh
+ios/Config.xcconfig

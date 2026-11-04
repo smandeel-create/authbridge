@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "AuthBridge",
+  "version": "0.1.0",
+  "description": "Fills logins in tabs on request from the local AuthBridge daemon. Credentials are approved on the user's iPhone.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA37MkCAf6XuPLNyKg5FhQL6w8wV8ZmGBJ+0CEFd4rSCvsOG+fAMH7exidJlqKrUjTZ+vpc5oGVN8Cvp2saWI0QIvBNGpiZq0J5sXfJXbldEK7g8OEA0jvn/c5T21ANiYzpn1ZA7O0CR9vdWRblOTiil0pMx0w8kWji1lJ9uIvj9HNYfEuftk9lDUycEuqscXjRckQni9RB7hDepfkHO2mLZOLsOuOt3KGIVd/J8xiOvCoRTs9VRogRYJSxaBzDE2RQKZOnbslU/HKHSinOzD5j55k6bZYQ/iHfu4btRFfetpYO2qbm/g6Z6+kjShXf4PvnpnwQsmhXI13f0HEabT2eQIDAQAB",
+  "permissions": ["nativeMessaging", "scripting", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" }
+}

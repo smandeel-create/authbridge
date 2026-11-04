@@ -1,0 +1,16 @@
+{
+  "aad" : "req-1234",
+  "plaintext_b64" : "dGVzdCBzaGFyZSAwMTIzNDU2Nzg5YWJjZGVm",
+  "recipient_priv_raw_b64" : "oKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr8=",
+  "recipient_pub_b64" : "YFpyXSpK3+6xop4X7dYhwbdZPujNvESsbEq24vgF0jw=",
+  "sealed" : {
+    "ct" : "Ea577Rx\/onfHTO06v\/FV1Hhnlu83sG4627GdmeJht1kqmHTOiKtBzMp8gg==",
+    "epk" : "p3LRFSUUdpsGBhn+S9dVyaZPP1AS1zS4rZjuSfukkR0=",
+    "nonce" : "y0\/xA2XPncSA7Twk"
+  },
+  "sign" : {
+    "message_b64" : "UE9TVAovdjEvYXBwcm92ZQoxNzYwMDAwMDAwMDAwCkJ3Y0hCd2NIQndjSEJ3Y0hCd2NIQnc9PQo0ZjAxMTcyYzIyMzYzNzNhYzU3Mjk4MWQ1YWUyNmVkYWVlMjZiYzg0ZGJmODZhN2M5Nzc4M2Y2ZGY1NjU3MmY4",
+    "pub_spki_b64" : "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETGM247iz3ncbYTocehc0g0zWnBpPX\/7LJAxjvA3bFXT2iWxdFMpE4AN3kcIwAzMlmnG5AeUlhXXRB+W4rEi0JA==",
+    "sig_der_b64" : "MEUCIQCyMwm\/3WcIoZHYdmy7NjhrYs1\/tM0ETTcz5bjxxXvZNgIgSUCu46XS35h63J\/5gXiRON923WtZeyHZJxu1MHPAVp8="
+  }
+}
