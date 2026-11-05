@@ -78,6 +78,7 @@ export async function createDaemon(opts = {}) {
       p.resolve = (v) => {
         if (p.decided) return;
         p.decided = true; clearTimeout(p.timer); pending.delete(id);
+        log.info('request_done', { domain, kind, decision: v.decision, seen_by_phone: !!p.seen_at, seen_after_ms: p.seen_at ? p.seen_at - p.requested_at : undefined });
         if (kind === 'code') {
           finished.set(id, v.decision === 'timeout' ? { state: 'expired', at: Date.now() } : { state: 'resolved', ...(v.resolved_by ? { resolved_by: v.resolved_by } : {}), at: Date.now() });
           for (const [k, f] of finished) if (Date.now() - f.at > 3600000) finished.delete(k);
@@ -96,6 +97,7 @@ export async function createDaemon(opts = {}) {
       const tok = pairing.device?.push_token?.token;
       if (apns.configured && tok) {
         const r = await apns.send({ deviceToken: tok, title: 'Login approval needed', body: req.needs_enroll ? `${req.domain} — first login, pick it from Passwords` : req.domain, request_id: req.id, expires_at: req.expires_at });
+        log.info('push_sent', { domain: req.domain, kind: req.kind, ok: !!r.ok, status: r.status });
         if (r.gone) { pairing.clearPushToken(); log.info('push_token_cleared', { status: r.status }); }
         return;
       }
@@ -465,6 +467,7 @@ export async function createDaemon(opts = {}) {
   const routes = {
     'GET /v1/pending': () => ({
       requests: [...pending.values()].filter((p) => !p.decided && p.expires_at > Date.now())
+        .map((p) => { if (!p.seen_at) { p.seen_at = Date.now(); log.info('request_seen_by_phone', { domain: p.domain, kind: p.kind, after_ms: p.seen_at - p.requested_at }); } return p; })
         .map((p) => p.kind === 'code'
           ? { id: p.id, kind: 'code', domain: p.domain, task: p.task, requested_at: p.requested_at, expires_at: p.expires_at, parent_id: p.parent_id, reason: p.reason, ...(p.searched ? { searched: p.searched } : {}) }
           : ({ id: p.id, kind: 'login', domain: p.domain, task: p.task, record_id: p.needs_enroll ? null : p.record_id, needs_enroll: !!p.needs_enroll, requested_at: p.requested_at, expires_at: p.expires_at })),
