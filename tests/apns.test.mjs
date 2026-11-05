@@ -174,3 +174,36 @@ test('fallback notifier: disabled without url; posts text, domain and static bod
   await n2.notify({ domain: 'example.com' });
   assert.equal(calls[1].init.headers.authorization, undefined);
 });
+
+test('daemon: one reminder push if the phone has not opened the request', async () => {
+  const sent = [];
+  const apns = { configured: true, send: async (x) => { sent.push(x); return { ok: true }; } };
+  const d = await startDaemon({ apns, config: { timing: { reminder_ms: 100 } } });
+  try {
+    const phone = await pairedPhone(d);
+    await phone.req('POST', '/v1/push-token', { token: TOKEN });
+    const { ext, p } = await loginWith(d, phone);
+    await sleep(400);
+    assert.equal(sent.length, 2);
+    assert.equal(sent[1].title, 'Still waiting: login approval');
+    assert.equal(sent[1].body, 'example.com');
+    await sleep(300);
+    assert.equal(sent.length, 2);
+    await p; ext.close();
+  } finally { await d.stop(); }
+});
+
+test('daemon: no reminder once the phone has seen the request', async () => {
+  const sent = [];
+  const apns = { configured: true, send: async (x) => { sent.push(x); return { ok: true }; } };
+  const d = await startDaemon({ apns, config: { timing: { reminder_ms: 200 } } });
+  try {
+    const phone = await pairedPhone(d);
+    await phone.req('POST', '/v1/push-token', { token: TOKEN });
+    const { ext, p } = await loginWith(d, phone);
+    await phone.waitPending();
+    await sleep(400);
+    assert.equal(sent.length, 1);
+    await p; ext.close();
+  } finally { await d.stop(); }
+});

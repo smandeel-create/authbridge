@@ -142,7 +142,7 @@ commands `{cmd_id, cmd, ...}` and the extension answers `{cmd_id, ok, result|err
 4. Per-domain lock. A second request for the same domain waits for the first; if the first ended
    `signed_in`, `reload` this tab, `probe`, and return `already_signed_in` if no login form remains.
    Different domains never wait on each other.
-5. Create pending request (expires after timeout_s), notify phone, wait for approve/deny/timeout. If the domain
+5. Create pending request (expires after timeout_s), notify phone, wait for approve/deny/timeout. If the phone has not fetched the request after `reminder_ms` (120000), send one reminder push. If the domain
    has no record the request has `needs_enroll: true`; the phone enrolls then approves with the new record_id.
    Phone answers `no_credential` → `no_credential`; deny → `denied`; timeout → `timed_out`.
 6. Decrypt (S1 via helper, P from sealed share). GCM failure → `failed` detail `decrypt`.

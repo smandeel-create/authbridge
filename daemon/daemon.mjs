@@ -23,7 +23,7 @@ const DEFAULTS = {
   notifier: {},
   fallback_notifier: {},
   mail: {},
-  timing: { probe_interval_ms: 1000, probe_timeout_ms: 20000, mail_interval_ms: 5000, mail_fast_interval_ms: 2000, mail_fast_window_ms: 30000, mail_timeout_ms: 180000, cmd_timeout_ms: 15000, code_request_after_ms: 20000, prompt_min_ms: 45000, prompt_max_ms: 150000, prompt_default_ms: 75000, code_request_ttl_ms: 180000, max_code_steps: 3 },
+  timing: { probe_interval_ms: 1000, probe_timeout_ms: 20000, mail_interval_ms: 5000, mail_fast_interval_ms: 2000, mail_fast_window_ms: 30000, mail_timeout_ms: 180000, cmd_timeout_ms: 15000, reminder_ms: 120000, code_request_after_ms: 20000, prompt_min_ms: 45000, prompt_max_ms: 150000, prompt_default_ms: 75000, code_request_ttl_ms: 180000, max_code_steps: 3 },
 };
 
 class HttpErr extends Error { constructor(status, code) { super(code); this.status = status; this.code = code; } }
@@ -92,11 +92,11 @@ export async function createDaemon(opts = {}) {
   }
 
   // APNs when configured and the device has a token; otherwise the optional webhook fallback. Never throws.
-  async function notifyPhone(req, task) {
+  async function notifyPhone(req, task, { reminder = false } = {}) {
     try {
       const tok = pairing.device?.push_token?.token;
       if (apns.configured && tok) {
-        const r = await apns.send({ deviceToken: tok, title: 'Login approval needed', body: req.needs_enroll ? `${req.domain} — first login, pick it from Passwords` : req.domain, request_id: req.id, expires_at: req.expires_at });
+        const r = await apns.send({ deviceToken: tok, title: reminder ? 'Still waiting: login approval' : 'Login approval needed', body: req.needs_enroll ? `${req.domain} — first login, pick it from Passwords` : req.domain, request_id: req.id, expires_at: req.expires_at });
         log.info('push_sent', { domain: req.domain, kind: req.kind, ok: !!r.ok, status: r.status });
         if (r.gone) { pairing.clearPushToken(); log.info('push_token_cleared', { status: r.status }); }
         return;
@@ -301,7 +301,15 @@ export async function createDaemon(opts = {}) {
       const req = createPending({ domain, task: String(task ?? '').slice(0, 200), record_id: existing ? existing.record_id : null, needs_enroll: !existing, timeoutMs });
       log.info('pending_created', { domain, needs_enroll: !existing });
       notifyPhone(req, task);
+      // One reminder, only if the phone has not opened the request yet.
+      const reminder = setTimeout(() => {
+        if (req.decided || req.seen_at) return;
+        log.info('reminder_sent', { domain });
+        notifyPhone(req, task, { reminder: true });
+      }, cfg.timing.reminder_ms);
+      reminder.unref?.();
       const decision = await req.promise;
+      clearTimeout(reminder);
       if (decision.decision === 'timeout') return { status: 'timed_out' };
       if (decision.decision === 'no_credential') return { status: 'no_credential' };
       if (decision.decision !== 'approve') return { status: 'denied' };
