@@ -1,12 +1,20 @@
 ---
 name: website-login
-description: Get a Chrome tab logged in to a website the user asked you to work on, without handling credentials. Use whenever a Claude in Chrome tab lands on a login / sign-in page (or a session has expired) during a task the user gave you. The user approves each login on their iPhone with Face ID; you never see the username, password or email code.
+description: Get a Chrome tab logged in to a website the user asked you to work on, without handling credentials. Use whenever a browser tab (Claude in Chrome or the built-in browser) lands on a login / sign-in page (or a session has expired) during a task the user gave you. The user approves each login on their iPhone with Face ID; you never see the username, password or email code.
 ---
 
 # Website login via AuthBridge
 
 You never type, read or ask for passwords. AuthBridge (local daemon + Chrome extension + iPhone app)
 does the login after the user approves it on their phone.
+
+## Which browser
+
+AuthBridge only fills tabs in Claude in Chrome (`mcp__claude-in-chrome__*`). It cannot fill the
+built-in browser pane (`mcp__Claude_Browser__*`). For any task on a site that needs the user signed
+in, work in a Claude in Chrome tab from the start. If you are in the built-in pane and hit a login
+page, open the same URL in a new Claude in Chrome tab and continue below. Never ask the user to type
+the password into the built-in pane instead.
 
 ## When a tab shows a login page
 
@@ -16,6 +24,11 @@ does the login after the user approves it on their phone.
    - `domain`: the site's registrable domain, e.g. `example.com` (not the full URL)
    - `tab_id`: the Claude in Chrome tab id
    - `task`: a few words the user will see on their phone, e.g. "update prices in the shop admin"
+
+   Do this without asking the user first. If the `mcp__authbridge__*` tools are missing from the
+   session (they drop when install.sh is re-run mid-session), use the CLI instead, in a background
+   Bash call because it waits for the phone: `authbridge-login <domain> <tab_id> "<task>"`. It prints
+   the same JSON result. `authbridge-login status` replaces `authbridge_status`.
 3. Tell the user in one line that a login approval is waiting on their phone (they may be away from the Mac),
    then wait for the result (it can take up to 5 minutes). A login may involve a second phone prompt: if the site's code isn't in
    email (or it wants a further SMS/app code), AuthBridge asks the user's phone to enter the code. That is part of the wait.

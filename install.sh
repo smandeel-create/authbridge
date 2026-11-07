@@ -59,6 +59,11 @@ else
   cp -R "$SKILL_SRC" "$SKILL_DST"
 fi
 
+echo "==> Linking the authbridge-login fallback CLI"
+chmod +x "$REPO/mcp/login-cli.mjs"
+mkdir -p "$HOME/.local/bin"
+ln -sf "$REPO/mcp/login-cli.mjs" "$HOME/.local/bin/authbridge-login"
+
 cat <<NEXT
 
 ==> Done. Next steps:
